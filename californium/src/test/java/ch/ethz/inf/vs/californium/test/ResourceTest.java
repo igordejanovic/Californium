@@ -40,6 +40,7 @@ import org.junit.Test;
 import ch.ethz.inf.vs.californium.coap.LinkFormat;
 import ch.ethz.inf.vs.californium.coap.Option;
 import ch.ethz.inf.vs.californium.coap.OptionNumberRegistry;
+import ch.ethz.inf.vs.californium.endpoint.LocalResource;
 import ch.ethz.inf.vs.californium.endpoint.RemoteResource;
 import ch.ethz.inf.vs.californium.endpoint.Resource;
 
@@ -147,5 +148,32 @@ public class ResourceTest {
 		String queried = LinkFormat.serialize(res, query, true);
 
 		assertEquals(link2+","+link1, queried);
+	}
+	
+	@Test
+	public void removeAddSubresourceTest() {
+		System.out.println("=[ removeSubresourceTest ]==============================");
+		
+		String input = "</my/Path>;rt=\"MyName\";if=\"/someRef/path\";ct=42;obs;sz=10";
+		Resource root = RemoteResource.newRoot(input);
+
+		Resource my = root.getResource("my");
+		
+		my.removeSubResource("Path");
+
+		assertEquals(0, my.subResourceCount());
+		
+		Resource res = my.getResource("Path");
+		assertNull(res);
+				
+		LocalResource newResource = new LocalResource("NewSubResource");
+		my.add(newResource);
+		res = my.getResource("NewSubResource");
+		assertNotNull(res);
+		assertEquals(1, my.subResourceCount());
+		
+		root.prettyPrint();
+		
+		
 	}
 }
